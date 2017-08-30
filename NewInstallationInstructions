@@ -1,0 +1,87 @@
+apt-get install  php5 php5-curl php5-mcrypt php5-gd libpcre3 libpcre3-dev curl libapache2-mod-php5 php5-fpm php-patchwork-utf8 php5-intl git
+
+apt-get install apache2
+
+apt-get install mysql-server php5-mysql
+
+a2enmod rewrite
+
+
+cd /etc/apache2/
+
+nano apache2.conf 
+	<Directory [your-document-root-directory]>
+        ...
+            AllowOverride All
+        ...
+        </Directory>
+
+
+
+chown -R www-data:www-data html
+
+chmod -R 777 html/
+
+-------------------------------------------------
+
+Error 1: 
+
+themes/default/views/header.php [92]:
+
+Non-static method html::escape() should not be called statically, assuming $this from incompatible context
+
+sed -i 's|public function escape(|public static function escape(|' /var/www/html/application/helpers/MY_html.php
+
+---------------------------------------------------
+
+Error 2:
+
+themes/default/views/blocks/main_reports.php [22]:
+
+Non-static method html::strip_tags() should not be called statically, assuming $this from incompatible context
+
+sed -i 's|public function strip_tags(|public static function strip_tags(|' /var/www/html/application/helpers/MY_html.php
+
+--------------------------------------------------
+
+Error 3:
+
+Although there is some other weirdness all the links are labelled "UI_MAIN.HOME"; "UI_MAIN.SUBMIT"; etc when I click "UI_MAIN.SUBMIT"
+
+    themes/default/views/reports/submit.php [53]:
+    Non-static method html::allowed_html() should not be called statically, assuming $this from incompatible context
+
+
+sed -i 's|public function allowed_html(|public static function allowed_html(|' /var/www/html/application/helpers/MY_html.php
+
+-------------------------------------------------
+
+Error 4: Dashboard
+
+To hide errors you should use
+
+error_reporting(E_NONE);
+
+instead of
+
+error_reporting(E_ALL ^ E_STRICT);
+
+Adopt this changes in 
+
+index.php (main index.php)
+
+bootstrap.php (not done at the moment) (https://github.com/ushahidi/Ushahidi_Web/blob/513bbc0c9f9afcfc37ffd94406e87f2f662fd32d/tests/phpunit/bootstrap.php0
+
+------------------------------------------------
+
+References: 
+
+1. http://ionizecms.com/forum/viewtopic.php?id=2060
+
+2. https://github.com/ushahidi/Ushahidi_Web/issues/822 (ui_main issues)
+
+3. https://github.com/ushahidi/Ushahidi_Web/issues/1410 (non static method html)
+
+4. https://github.com/ushahidi/Ushahidi_Web
+
+5. https://github.com/ushahidi/Ushahidi-Localizations (copy the contents in the il8n forlder)
